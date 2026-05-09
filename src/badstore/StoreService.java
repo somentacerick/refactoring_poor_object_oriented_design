@@ -24,35 +24,42 @@ public class StoreService {
         p2.quantityInStock = 2;
         p2.category = "books";
 
-        Address a1 = new Address();
+        Address a1 = new Address(
         //cleaned up by removing a1.__ =
-        "123 Main St";
-        "Chicago";
-        "IL";
-        "60601";
-        "USA";
+        "123 Main St",
+        "Chicago",
+        "IL",
+        "60601",
+        "USA"
+        );
 
-        Address a2 = new Address();
+        Address a2 = new Address(
         //same as a1
-        456 Side St";
-        "Toronto";
-        "ON";
-        M5H 2N2";
-        "Canada";
+        456 Side St",
+        "Toronto",
+        "ON",
+        M5H 2N2",
+        "Canada"
+        );
 
-        Customer c1 = new Customer();
-        c1.name = "Alice";
-        c1.email = "alice@example.com";
-        c1.loyaltyPoints = -100; // negative points
-        c1.type = "VIP";
-        c1.shippingAddress = a1;
+        Customer c1 = new Customer(
+        //cleaned up, removed c1.__ =
+        //added customertype
+        "Alice",
+        "alice@example.com",
+        100, // negative points correctly rejected
+        CustomerType.VIP,
+        a1
+        );
 
-        Customer c2 = new Customer();
-        c2.name = "Bob";
-        c2.email = "bob@example.com";
-        c2.loyaltyPoints = 0;
-        c2.type = "standard";
-        c2.shippingAddress = a2;
+        Customer c2 = new Customer(
+        //same as c1
+        "Bob",
+        "bob@example.com",
+        0,
+        CustomerType.STANDARD,
+        a2
+        );
 
         products.add(p1);
         products.add(p2);
