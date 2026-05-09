@@ -25,18 +25,20 @@ public class StoreService {
         p2.category = "books";
 
         Address a1 = new Address();
-        a1.street = "123 Main St";
-        a1.city = "Chicago";
-        a1.state = "IL";
-        a1.zip = "60601";
-        a1.country = "USA";
+        //cleaned up by removing a1.__ =
+        "123 Main St";
+        "Chicago";
+        "IL";
+        "60601";
+        "USA";
 
         Address a2 = new Address();
-        a2.street = "456 Side St";
-        a2.city = "Toronto";
-        a2.state = "ON";
-        a2.zip = "M5H 2N2";
-        a2.country = "Canada";
+        //same as a1
+        456 Side St";
+        "Toronto";
+        "ON";
+        M5H 2N2";
+        "Canada";
 
         Customer c1 = new Customer();
         c1.name = "Alice";
