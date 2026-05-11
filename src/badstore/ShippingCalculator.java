@@ -3,17 +3,17 @@ package badstore;
 public class ShippingCalculator {
 
     public static double calculateShippingCost(
-            String shippingMethod, Address address, double orderTotal) {
+            Shipping shippingMethod, Address address, double orderTotal) {
 
         if (shippingMethod == null) {
-            shippingMethod = "standard";
+            shippingMethod = Shipping.STANDARD;
         }
 
         double baseCost;
 
-        if ("express".equalsIgnoreCase(shippingMethod)) {
+        if (shippingMethod == Shipping.EXPRESS) {
             baseCost = 15.0;
-        } else if ("overnight".equalsIgnoreCase(shippingMethod)) {
+        } else if (shippingMethod == Shipping.OVERNIGHT) {
             baseCost = 25.0;
         } else {
             baseCost = 5.0; // "standard"
@@ -25,9 +25,8 @@ public class ShippingCalculator {
         }
 
         // "international" check
-        if (address != null && address.country != null &&
-                !"USA".equalsIgnoreCase(address.country)) {
-            baseCost = baseCost + 10.0;
+        if (address != null && address.isInternational()) {
+            baseCost += 10.0;
         }
 
         return baseCost;
