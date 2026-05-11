@@ -5,11 +5,14 @@ import java.util.List;
 
 public class StoreService {
 
-    public static List<Product> products = new ArrayList<>();
-    public static List<Customer> customers = new ArrayList<>();
-    public static List<Order> orders = new ArrayList<>();
+    private final List<Product> products = new ArrayList<>();
+    private final List<Customer> customers = new ArrayList<>();
+    private final List<Order> orders = new ArrayList<>();
 
     private final LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
+    private final StoreLogger logger = new StoreLogger();
+    private final NotificationService notificationService = new NotificationService();
+    private final SalesReportService salesReportService = new SalesReportService();
 
     public void initSampleData() {
         Product p1 = new Product("P1", "Laptop", 999.99, 10, "electronics");
@@ -57,6 +60,17 @@ public class StoreService {
         products.add(p2);
         customers.add(c1);
         customers.add(c2);
+    }
+    public List<Product> getProducts() {
+        return List.copyOf(products);
+    }
+
+    public List<Customer> getCustomers() {
+        return List.copyOf(customers);
+    }
+
+    public List<Order> getOrders() {
+        return List.copyOf(orders);
     }
 
     public void printProducts() {
@@ -125,9 +139,8 @@ public class StoreService {
 
             loyaltyProgram.applyPurchasePoints(foundCustomer, order.getTotalPrice());
 
-            log("Order placed: " + order);
-            sendEmail(foundCustomer.getEmail(), "Thanks for your order of " + foundProduct.getName() + "!");
-
+            logger.log("Order placed: " + order);
+            notificationService.sendOrderConfirmation(foundCustomer, foundProduct);
         } catch (IllegalArgumentException e) {
             System.out.println("Could not place order: " + e.getMessage());
         }
@@ -166,22 +179,7 @@ public class StoreService {
     }
 
     public void printSalesReport() {
-        double totalRevenue = 0;
-        System.out.println("Sales Report");
-        for (Order o : orders) {
-            System.out.println(o);
-            totalRevenue += o.getTotalPrice();
-        }
-        System.out.println("Total revenue: " + totalRevenue);
+        salesReportService.printSalesReport(orders);
     }
 
-    // Fake logging - prints to console
-    public void log(String msg) {
-        System.out.println("[LOG] " + msg);
-    }
-
-    // Fake email - prints to console
-    public void sendEmail(String email, String body) {
-        System.out.println("Sending email to " + email + ": " + body);
-    }
 }
