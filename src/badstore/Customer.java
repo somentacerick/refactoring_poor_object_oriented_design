@@ -8,7 +8,7 @@ public class Customer {
     private final String name;
     private final String email;
     private int loyaltyPoints;
-    private String type; // STANDARD, VIP, or EMPLOYEE
+    private CustomerType type; // STANDARD, VIP, or EMPLOYEE
     private final Address shippingAddress;
 
     public Customer(String name, String email, int loyaltyPoints, CustomerType type, Address shippingAddress) {
@@ -36,7 +36,7 @@ public class Customer {
 
     private void requireNonBlank(String value, String fieldName) {
         if (value == null || value.trim().isEmpty()) {
-            thrnow new IllegalArgumentException(fieldName + " cannot be null or blank.");
+            throw new IllegalArgumentException(fieldName + " cannot be null or blank.");
         }
     }
 
@@ -54,6 +54,10 @@ public class Customer {
 
         public CustomerType getType() {
             return type;
+        }
+
+        public Address getShippingAddress() {
+            return shippingAddress;
         }
 
         //method for adding loy points
@@ -76,8 +80,8 @@ public class Customer {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!o instanceof Customer customer)) return false;
-        return email.equalIsIgnoreCase(customer.email);
+        if (!(o instanceof Customer customer)) return false;
+        return email.equalsIgnoreCase(customer.email);
     }
 
     @Override

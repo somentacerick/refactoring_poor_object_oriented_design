@@ -13,18 +13,24 @@ public class Address {
 
     //constructor to enforce invariants, prevents Address obj from being created
     //into an invalid state
-    public Address(String street, String city, String state, String zip, String country {
+    public Address(String street, String city, String state, String zip, String country) {
         requireNonBlank(street, "Street");
         requireNonBlank(city, "City");
         requireNonBlank(state, "State");
         requireNonBlank(zip, "Zip");
         requireNonBlank(country, "Country");
+
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.zip = zip;
+        this.country = country;
     }
 
     //helper method, avoids repeated if statements, more readable
-    private void requireNonBlank(String string, String fieldName) {
+    private void requireNonBlank(String value, String fieldName) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(fieldName + "cannot be blank.");
+            throw new IllegalArgumentException(fieldName + " cannot be blank.");
         }
     }
 
@@ -54,10 +60,11 @@ public class Address {
     public boolean isInternational() {
         return !"USA".equalsIgnoreCase(country);
     }
-}
+
     @Override
     public String toString() {
         return street + ", " + city + ", " + state + " " + zip +
                 " (" + country + ")";
 
+    }
 }

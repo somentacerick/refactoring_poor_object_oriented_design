@@ -9,6 +9,8 @@ public class StoreService {
     public static List<Customer> customers = new ArrayList<>();
     public static List<Order> orders = new ArrayList<>();
 
+    private final LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
+
     public void initSampleData() {
         Product p1 = new Product("P1", "Laptop", 999.99, 10, "electronics");
 
@@ -121,7 +123,7 @@ public class StoreService {
             System.out.println("Order placed for " + foundCustomer.getName() + " : "
                     + foundProduct.getName() + " x " + quantity);
 
-            LoyaltyProgram.instance.applyPurchasePoints(foundCustomer, order.getTotalPrice());
+            loyaltyProgram.applyPurchasePoints(foundCustomer, order.getTotalPrice());
 
             log("Order placed: " + order);
             sendEmail(foundCustomer.getEmail(), "Thanks for your order of " + foundProduct.getName() + "!");
@@ -167,8 +169,8 @@ public class StoreService {
         double totalRevenue = 0;
         System.out.println("Sales Report");
         for (Order o : orders) {
-            System.out.println(o.toString());
-            totalRevenue += o.totalPrice;
+            System.out.println(o);
+            totalRevenue += o.getTotalPrice();
         }
         System.out.println("Total revenue: " + totalRevenue);
     }
