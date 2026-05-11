@@ -10,19 +10,9 @@ public class StoreService {
     public static List<Order> orders = new ArrayList<>();
 
     public void initSampleData() {
-        Product p1 = new Product();
-        p1.id = "P1";
-        p1.name = "Laptop";
-        p1.price = -999.99;
-        p1.quantityInStock = 10;
-        p1.category = "electronics";
+        Product p1 = new Product("P1", "Laptop", 999.99, 10, "electronics");
 
-        Product p2 = new Product();
-        p2.id = "P2";
-        p2.name = "Book - Design Patterns";
-        p2.price = 0;
-        p2.quantityInStock = 2;
-        p2.category = "books";
+        Product p2 = new Product("P2", "Book - Design Patterns", 0, 2, "books");
 
         Address a1 = new Address(
         //cleaned up by removing a1.__ =
@@ -35,10 +25,10 @@ public class StoreService {
 
         Address a2 = new Address(
         //same as a1
-        456 Side St",
+        "456 Side St",
         "Toronto",
         "ON",
-        M5H 2N2",
+        "M5H 2N2",
         "Canada"
         );
 
@@ -70,27 +60,25 @@ public class StoreService {
     public void printProducts() {
         System.out.println("Products:");
         for (Product p : products) {
-            System.out.println(p.id + " - " + p.name + " ($" + p.price + "), qty=" + p.quantityInStock);
+            System.out.println(p.getId() + " - " + p.getName() + " ($" + p.getPrice() + "), qty=" + p.getQuantityInStock());
         }
     }
 
     public void printCustomers() {
         System.out.println("Customers:");
         for (Customer c : customers) {
-            System.out.println(c.name + " (" + c.email + "), pts=" + c.loyaltyPoints
-                    + ", type=" + c.type + ", addr=" + c.shippingAddress);
+            System.out.println(
+                    c.getName() +  " (" + c.getEmail() + "), pts="
+                        + c.getLoyaltyPoints()
+                        + ", type=" + c.getType()
+                        + ", addr =" + c.getShippingAddress()
+            );
         }
     }
 
     public void placeOrder(String email, String productId, int quantity) {
         // find customer
-        Customer foundCustomer = null;
-        for (Customer c : customers) {
-            if (c.email.equals(email)) {
-                foundCustomer = c;
-                break;
-            }
-        }
+        Customer foundCustomer = findCustomerByEmail(email);
 
         if (foundCustomer == null) {
             System.out.println("No such customer.");
@@ -98,56 +86,81 @@ public class StoreService {
         }
 
         // find product
-        Product foundProduct = null;
-        for (Product p : products) {
-            if (p.id.equals(productId)) {
-                foundProduct = p;
-                break;
-            }
-        }
-
+        Product foundProduct = findProductById(productId);
         if (foundProduct == null) {
             System.out.println("No such product.");
             return;
         }
 
-        foundProduct.quantityInStock = foundProduct.quantityInStock - quantity;
+        try {
+            foundProduct.reduceStock(quantity);
 
-        Order order = new Order();
-        order.name = foundCustomer.name;
-        order.email = foundCustomer.email;
-        order.loyaltyPoints = foundCustomer.loyaltyPoints;
-        order.type = foundCustomer.type;
+            double discountedTotal = calculateDiscountedTotal(foundProduct, foundCustomer, quantity);
 
-        order.product = foundProduct;
-        order.quantity = quantity;
+            Shipping shipping = Shipping.STANDARD;
 
-        // Product's discount logic
-        double baseTotal = foundProduct.price * quantity;
-        double discountedTotal = foundProduct.getDiscountedPrice(foundCustomer.type) * quantity;
+            double shippingCost = ShippingCalculator.calculateShippingCost(
+                    shipping,
+                    foundCustomer.getShippingAddress(),
+                    discountedTotal
+            );
 
-        order.totalPrice = discountedTotal;
+            Order order = new Order(
+                    foundCustomer,
+                    foundProduct,
+                    quantity,
+                    discountedTotal,
+                    shipping,
+                    shippingCost
+            );
 
-        // shipping logic
-        order.shippingMethod = "standard";
-        order.shippingCost = ShippingCalculator.calculateShippingCost(
-                order.shippingMethod,
-                foundCustomer.shippingAddress,
-                order.totalPrice
-        );
-        System.out.println("Shipping cost: " + order.shippingCost);
+            orders.add(order);
 
-        order.status = "NEW";
+            System.out.println("Shipping cost: " + order.getShippingCost());
 
-        orders.add(order);
+            System.out.println("Order placed for " + foundCustomer.getName() + " : "
+                    + foundProduct.getName() + " x " + quantity);
 
-        System.out.println("Order placed for " + foundCustomer.name + " : "
-                + foundProduct.name + " x " + quantity);
+            LoyaltyProgram.instance.applyPurchasePoints(foundCustomer, order.getTotalPrice());
 
-        LoyaltyProgram.instance.applyPurchasePoints(foundCustomer, order.totalPrice);
+            log("Order placed: " + order);
+            sendEmail(foundCustomer.getEmail(), "Thanks for your order of " + foundProduct.getName() + "!");
 
-        log("Order placed: " + order.toString());
-        sendEmail(foundCustomer.email, "Thanks for your order of " + foundProduct.name + "!");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Could not place order: " + e.getMessage());
+        }
+    }
+
+    private Customer findCustomerByEmail(String email) {
+        for (Customer customer : customers) {
+            if (customer.getEmail().equalsIgnoreCase(email)) {
+                return customer;
+            }
+        }
+
+        return null;
+    }
+
+    private Product findProductById(String productId) {
+        for (Product product : products) {
+            if (product.getId().equalsIgnoreCase(productId)) {
+                return product;
+            }
+        }
+        return null;
+    }
+
+    private double calculateDiscountedTotal(Product product, Customer customer, int quantity) {
+        double price = product.getPrice();
+
+        if (customer.getType() == CustomerType.VIP) {
+            price = price * .8;
+        } else if (customer.getType() == CustomerType.STANDARD) {
+            price = price * .95;
+        } else if (customer.getType() == CustomerType.EMPLOYEE) {
+            price = price * .5;
+        }
+        return price * quantity;
     }
 
     public void printSalesReport() {

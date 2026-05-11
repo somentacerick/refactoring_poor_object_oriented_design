@@ -2,31 +2,78 @@ package badstore;
 
 public class Product {
 
-    public String id;
-    public String name;
-    public double price;
-    public int quantityInStock;
-    public String category; // "electronics", "books", etc.
+    //private to enforce encap
+    private final String id;
+    private final String name;
+    private final double price;
+    private int quantityInStock;
+    private final String category; // "electronics", "books", etc.
 
-    public double getDiscountedPrice(String customerType) {
-        double finalPrice = price;
+    //removed getDiscountPrice, violates separation of concerns
+    public Product(String id, String name, double price, int quantityInStock, String category) {
 
-        if ("VIP".equalsIgnoreCase(customerType)) {
-            finalPrice = price * 0.8;   // 20% off
-        } else if ("standard".equalsIgnoreCase(customerType)) {
-            finalPrice = price * 0.95;  // 5% off
-        } else if ("employee".equalsIgnoreCase(customerType)) {
-            finalPrice = price * 0.5;   // 50% off
-        } else {
-            // no discount for unknown types
+        requireNonBlank(id,"ID");
+        requireNonBlank(name, "Name");
+        requireNonBlank(category, "Category");
+
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
         }
 
-        return finalPrice;
+        if (quantityInStock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative");
+        }
+
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.quantityInStock = quantityInStock;
+        this.category = category;
+    }
+
+    //helper to avoid repeating checks
+    private void requireNonBlank(String value, String fieldName) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank");
+        }
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantityInStock() {
+        return quantityInStock;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    //updates stock
+    public void reduceStock(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero.");
+        }
+
+        if (amount > quantityInStock) {
+            throw new IllegalArgumentException("Not enough stock available.");
+        }
+
+        quantityInStock -= amount;
     }
 
     @Override
     public String toString() {
-        return id + ":" + name + ":" + price + ":" + quantityInStock + ":" + category;
+        return id + ":" + name + ":" + "($" + price + "), qty=" + quantityInStock + ", category=" + category;
     }
 }
 
